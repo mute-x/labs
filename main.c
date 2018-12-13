@@ -13,8 +13,8 @@
 
 #define TEMP 22 // TODO get data from temperature sensor
 
-static char error[] = "----------------";
-static char letters[20] = "----------------";
+static char error[] = "----------";
+static char letters[20] = "----------";
 
 static bool update;
 
@@ -38,6 +38,7 @@ void setup(void)
 void ultrasonic_error()
 {
 	memcpy(letters, error, sizeof(error));
+	update = true;
 }
 
 void ultrasonic_completed(uint16_t time)
@@ -60,6 +61,8 @@ int main(void)
 		ultrasonic_start();
 		while (!update)
 			__WFI();
+
+		update = false;
 
 		display_set_write_position(3, 25);
 
