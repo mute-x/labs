@@ -1,3 +1,12 @@
+ultrasonic.h
+ultrasonic.c
+cmsis/src/stm32f4xx_hal_rcc.c
+system.c
+system.h
+display.c
+display.h
+spi.h
+spi.c
 Makefile
 cmsis/inc/Legacy/stm32_hal_legacy.h
 cmsis/inc/cmsis_gcc.h
@@ -69,4 +78,6 @@ cmsis/src/system_stm32f4xx.c
 cmsis/src/system_stm32f4xx.c
 cmsis/src/system_stm32f4xx.c
 ldscripts/link.ld
+letter.c
+letter.h
 main.c

@@ -1,58 +1,75 @@
+//coding: KOI8-U
 #include <stm32f4xx.h>
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <inttypes.h>
+#include <locale.h>
 
-#define DEBOUNCE_TIME 50
+#include "system.h"
+#include "display.h"
+#include "ultrasonic.h"
 
-static volatile uint16_t val = 0;
+#define TEMP 22 // TODO get data from temperature sensor
 
-uint32_t lastPress = 0;
+static char error[] = "----------------";
+static char letters[20] = "----------------";
 
-void EXTI0_IRQHandler(void)
-{
-	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
-	if (HAL_GetTick() - lastPress < DEBOUNCE_TIME)
-		return;
-	lastPress = HAL_GetTick();
-}
+static bool update;
 
 void SysTick_Handler()
 {
 	HAL_IncTick();
-	if (HAL_GetTick() - lastPress == DEBOUNCE_TIME &&
-	    HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == GPIO_PIN_RESET) {
-		val++;
-	}
 }
 
 void setup(void)
 {
-	__HAL_RCC_GPIOE_CLK_ENABLE();
-	__HAL_RCC_GPIOB_CLK_ENABLE();
-	GPIO_InitTypeDef conf = {
-		.Pin = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15,
-		.Mode = GPIO_MODE_OUTPUT_PP,
-		.Pull = GPIO_NOPULL,
-		.Speed = GPIO_SPEED_FREQ_LOW,
-		.Alternate = 0,
-	};
-	HAL_GPIO_Init(GPIOE, &conf);
+	set_system_clock();
+	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 	HAL_InitTick(0);
-	conf.Pin = GPIO_PIN_0;
-	conf.Mode = GPIO_MODE_IT_FALLING;
-	conf.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOB, &conf);
-	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
+	display_init();
+	ultrasonic_init();
+
+	setlocale(LC_NUMERIC, "uk_UA");
+}
+
+void ultrasonic_error()
+{
+	memcpy(letters, error, sizeof(error));
+}
+
+void ultrasonic_completed(uint16_t time)
+{
+	if (time >= 37000)
+		ultrasonic_error();
+	else {
+		snprintf(letters, sizeof(letters), "%06.3f Í", (331.5 + 0.6 * 22) * time / 2000000.);
+		update = true;
+	}
 }
 
 int main(void)
 {
 	setup();
+	int x;
 	while (1) {
-		HAL_GPIO_WritePin(GPIOE, 0x3FF << 6, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOE, (val & 0x3FF) << 6, GPIO_PIN_SET);
-		for (volatile int i = 0; i < 10000; i++);
+		x = 0;
+
+		ultrasonic_start();
+		while (!update)
+			__WFI();
+
+		display_set_write_position(3, 25);
+
+		for (int i = 0; i < strlen(letters); i++) {
+			x += display_putletter(letters[i]);
+		}
+
+		while (HAL_GetTick() % 1000)
+			__WFI();
+		display_clear();
 	}
 	return 0;
 }
