@@ -13,3 +13,5 @@ Supported `make` targets:
 - `debug` (same as `build`, but with debug flags)
 - `clean`
 - `flash`
+
+![picture alt](https://github.com/poc-team/labs/blob/master/longdistznce-2.png "Title is optional")
