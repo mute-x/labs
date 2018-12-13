@@ -14,4 +14,4 @@ Supported `make` targets:
 - `clean`
 - `flash`
 
-![picture alt](https://github.com/poc-team/labs/blob/master/longdistznce-2.png "Title is optional")
+![picture alt](https://github.com/poc-team/labs/blob/master/connection.png "Title is optional")
