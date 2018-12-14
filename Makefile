@@ -51,7 +51,7 @@ vpath %.o $(OBJDIR)
 vpath %.c $(SRCDIR)
 vpath %.s $(SRCDIR)
 
-.PHONY: clean build debug
+.PHONY: clean build debug flash install-flasher
 
 debug: CFLAGS += $(DEBUGFLAGS)
 debug: ASFLAGS+= -g3
@@ -72,5 +72,8 @@ clean:
 
 flash: $(OUT_FILE).bin
 	st-flash write $(OUT_FILE).bin 0x8000000
+
+install-flasher:
+	./install-flasher.sh
 
 endif
