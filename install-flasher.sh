@@ -1,1 +1,1 @@
-git clone https://github.com/texane/stlink.git stlink && cd stlink && make && mkdir build && cd build && cmake .. && make && cd Release && sudo make install && sudo ldconfig && cd ../.. && sudo cp etc/udev/rules.d/49-stlinkv* /etc/udev/rules.d/ && sudo restart udev
+git clone https://github.com/texane/stlink.git stlink && cd stlink && make && mkdir build && cd build && cmake .. && make && cd Release && sudo make install && sudo ldconfig && cd ../.. && sudo cp etc/udev/rules.d/49-stlinkv* /etc/udev/rules.d/ && udevadm control --reload-rules && udevadm trigger
